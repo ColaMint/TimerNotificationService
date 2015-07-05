@@ -105,7 +105,7 @@ def errorResponse(error, code = -1):
 	message = '%s' % error
 	return Response({"code" : code, "message" : message})
 
-def successResponse(message = ''):
+def successResponse(message = 'success'):
 	return Response({"code" : 0, "message" : message})
 
 class FieldException(Exception):
