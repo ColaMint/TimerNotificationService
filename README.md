@@ -8,6 +8,7 @@
 
 #####Part-One：【api-django】 提供API给用户调用，并负责字段检查、频率限制等工作，最终把可信任的任务保存在redis中
 *   安装pip
+		
 		sudo apt-get install python-pip
 *   复制 /api_django/api_django/settings.py.example 一份到同目录下并命名为 settings.py
     
