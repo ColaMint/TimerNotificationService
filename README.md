@@ -49,7 +49,8 @@
         MAX_EMAIL_COUNT_PER_HOUR = 10
         ```
 *   进入/api_django，执行以下命令
-        #安装项目依赖的python包
+        	
+		#安装项目依赖的python包
         pip install requirement.txt
         
         #自动建立数据库表
