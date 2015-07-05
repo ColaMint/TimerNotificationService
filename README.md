@@ -61,7 +61,6 @@ python manage.py runserver 0.0.0.0:80
 ```
 添加飞信定时任务API
 ```  
-飞信任务
 URL     :   http://host:port/timer_notification/api/fetion
 METHOD  ：  POST
 BODY    ：  {   'fetion_user'       :   '【飞信账号】	, 
@@ -76,7 +75,6 @@ BODY    ：  {   'fetion_user'       :   '【飞信账号】	,
 
 添加邮件定时任务API
 ```   
-邮件任务
 URL     :  http://host:port/timer_notification/api/email
 METHOD  :  POST
 BODY    :  {   	'email_smpt'	    :	'【smpt服务器】',      
