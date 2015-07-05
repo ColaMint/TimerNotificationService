@@ -10,7 +10,7 @@
 *   安装pip
 		
 	
-	sudo apt-get install python-pip
+			sudo apt-get install python-pip
 *   复制 /api_django/api_django/settings.py.example 一份到同目录下并命名为 settings.py
     
     修改其中数据库的配置和erdis的配置， 使其跟你的环境相匹配
