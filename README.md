@@ -67,7 +67,7 @@
         BODY    ：  {   
                         'fetion_user'       :   '【飞信账号】'  ,                                                       
                         'fetion_password'   :   '【飞信密码】'  ,                                                                                   
-                        'fetion_message'    :  '【飞信内容】'  ,                                                                                                                          
+                        'fetion_message'    :  	'【飞信内容】'  ,                                                                                                                          
                         'notification_time' :   '【发送时间戳】 ,
                     }
         备注    :   飞信内容不能多于500个字符
