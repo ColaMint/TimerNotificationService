@@ -77,7 +77,7 @@
         METHOD  ：  POST
         BODY    ：  {   'email_smpt'        :   '【smpt服务器】',                                                                                                      
                         'email_user'        :   '【邮箱账号】'  ,                                                                                                                                                                      
-                        'email_password'    :  '【邮箱密码】'  ,                                                                                                                                                                         
+                        'email_password'    :  	'【邮箱密码】'  ,                                                                                                                                                                         
                         'email_subject'     :   '【邮件标题】'  ,                                                                                                                                                                             
                         'email_body'        :   '【邮件内容】'  ,                                                                                                                                                                                           
                         'email_type'        :   '【内容类型】'  ,                                                                                                                                                                                       
