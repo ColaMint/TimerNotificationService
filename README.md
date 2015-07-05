@@ -65,9 +65,9 @@
         URL     :   http://host:port/timer_notification/api/fetion
         METHOD  ：  POST
         BODY    ：  {   
-                        'fetion_user'       :   '【飞信账号】'  ,                                                       
-                        'fetion_password'   :   '【飞信密码】'  ,                                                                                   
-                        'fetion_message'    :  	'【飞信内容】'  ,                                                                                                                          
+                        'fetion_user'       :   '【飞信账号】'  , 
+                        'fetion_password'   :   '【飞信密码】'  ,  
+                        'fetion_message'    :  	'【飞信内容】'  ,     
                         'notification_time' :   '【发送时间戳】 ,
                     }
         备注    :   飞信内容不能多于500个字符
@@ -75,17 +75,18 @@
         
         邮件任务
         URL     :   http://host:port/timer_notification/api/email
-        METHOD  ：  POST
-        BODY    ：  {   'email_smpt'        :   '【smpt服务器】',                                                                                                      
-                        'email_user'        :   '【邮箱账号】'  ,                                                                                                                                                                      
-                        'email_password'    :  	'【邮箱密码】'  ,                                                                                                                                                                         
-                        'email_subject'     :   '【邮件标题】'  ,                                                                                                                                                                             
-                        'email_body'        :   '【邮件内容】'  ,                                                                                                                                                                                           
-                        'email_type'        :   '【内容类型】'  ,                                                                                                                                                                                       
-                        'email_to_users',   :   '【收件人】'    ,                                                                                                                                                                                        
+        METHOD  :  POST
+        BODY    :  {   	
+			'email_smpt'	    :	'【smpt服务器】',      
+                        'email_user'        :   '【邮箱账号】'  ,                                          
+                        'email_password'    :  	'【邮箱密码】'  ,           
+                        'email_subject'     :   '【邮件标题】'  ,                                                     
+                        'email_body'        :   '【邮件内容】'  ,                                                     
+                        'email_type'        :   '【内容类型】'  ,                                       
+                        'email_to_users',   :   '【收件人】'    ,                                                 
                         'notification_time' :   '【发送时间戳】',                                                                                                                                                                         
                       ) 
-        备注    :   邮件标题不能多于500个字符
+	备注	:   邮件标题不能多于500个字符
                     邮件内容不能多于50000个字符
                     内容类型可选的值有 :    1 --> text/plain    2 --> text/html
                     多个收件人用 ; 隔开， 总长度不能大于300字符
