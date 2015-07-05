@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from rest_framework.decorators import api_view,renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -5,10 +6,10 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from django.http import HttpRequest
 from django.db import transaction
-
+from django.conf import settings 
 import json
 
-from timernotification.helper import getRequestIP
+from timernotification.helper import *
 from timernotification.models import FetionRequest, EmailRequest
 
 # Create your views here.
@@ -21,11 +22,11 @@ def fetion(request):
 	try :
 		recv_data = json.loads(recv_json)
 	except Exception as e : 
-		return errorResponse('invalid JSON data')
+		return parseJsonErrprResponse()
 
 	ip = getRequestIP(request)
 	if ip == None :
-		return errorResponse('failed to parse your IP')
+		return parseIpErrorResponse() 
 
 	requireFields = (	'fetion_user',
 						'fetion_password',
@@ -39,17 +40,33 @@ def fetion(request):
 		except FieldException as e:
 			return errorResponse(e)
 	
+	if not checkNotificationTime(recv_data['notification_time']) :
+		return invalidNotificationTime() 
+	
 	fetionRequest = FetionRequest(	ip = ip,
 									fetion_user = recv_data['fetion_user'],
 									fetion_password = recv_data['fetion_password'],
 									fetion_message = recv_data['fetion_message'],
 									notification_time = recv_data['notification_time'],
 								)
+
+	# 限调用频率　每小时最多成功调用的次数 : settings.MAX_FETION_COUNT_PER_HOUR
+	serviceName = 'fetion'
+	maxTimesPerHour = settings.MAX_FETION_COUNT_PER_HOUR
+	timelen = 3600
+	if maxTimesPerHour >= 0 :
+		docnt = getServiceCount(serviceName, fetionRequest.fetion_user, timelen)
+		if docnt >= maxTimesPerHour :
+			return reachServiceMaxTimesResponse()
+
 	try:
 		with transaction.atomic():
 			fetionRequest.save()
 	except Exception as e:
-		return errorResponse('database error')
+		return databaseErrorResponse()
+
+	sendFetionTask(fetionRequest)
+	updateServiceCount(serviceName, fetionRequest.fetion_user, timelen)
 
 	return successResponse()
 
@@ -61,11 +78,11 @@ def email(request):
 	try :
 		recv_data = json.loads(recv_json)
 	except Exception as e : 
-		return errorResponse('invalid JSON data')
+		return parseJsonErrprResponse() 
 
 	ip = getRequestIP(request)
 	if ip == None :
-		return errorResponse('failed to parse your IP')
+		return parseIpErrorResponse()
 
 	requireFields = (	'email_smpt',
 						'email_user',
@@ -82,6 +99,9 @@ def email(request):
 		except FieldException as e:
 			return errorResponse(e)
 	
+	if not checkNotificationTime(recv_data['notification_time']) :
+		return invalidNotificationTime() 
+	
 	emailRequest = EmailRequest(	ip = ip,
 									email_smpt = recv_data['email_smpt'],
 									email_user = recv_data['email_user'],
@@ -92,21 +112,49 @@ def email(request):
 									email_to_users = recv_data['email_to_users'],
 									notification_time = recv_data['notification_time'],
 								)
+
 	
+	# 限调用频率　每小时最多成功调用的次数：settings.MAX_EMAIL_COUNT_PER_HOUR
+	serviceName = 'email'
+	maxTimesPerHour = settings.MAX_EMAIL_COUNT_PER_HOUR
+	timelen = 3600
+	if maxTimesPerHour >= 0 :
+		docnt = getServiceCount(serviceName, emailRequest.email_user, timelen)
+		if docnt >= maxTimesPerHour :
+			return reachServiceMaxTimesResponse()
+
 	try:
 		with transaction.atomic():
 			emailRequest.save()
 	except Exception as e:
-		return errorResponse('database error')
+		return databaseErrorResponse()
+	
+	sendEmailTask(emailRequest)
+	updateServiceCount(serviceName, emailRequest.email_user, timelen)
 
 	return successResponse()
 
 def errorResponse(error, code = -1):
 	message = '%s' % error
-	return Response({"code" : code, "message" : message})
+	return Response({'code' : code, 'message' : message})
 
 def successResponse(message = 'success'):
-	return Response({"code" : 0, "message" : message})
+	return Response({'code' : 0, 'message' : message})
+
+def parseJsonErrprResponse() :
+	return errorResponse('invalid JSON data')
+
+def parseIpErrorResponse() :
+	return errorResponse('failed to parse your IP')
+	
+def databaseErrorResponse() :
+	return errorResponse('database error')
+
+def reachServiceMaxTimesResponse() :
+	return errorResponse('reach max service times per hour')
+
+def invalidNotificationTime() :
+	return errorResponse('invalid notification time')
 
 class FieldException(Exception):
 	def __init__(self, mesg):
@@ -118,7 +166,6 @@ class MissingParamException(FieldException):
 	def __init__(self, field):
 		mesg = "missing param : %s" % field
 		FieldException.__init__(self, mesg)
-
 class ParamContentException():
 	def __init__(self, field):
 		mesg = "invalid value with param : %s" % field
@@ -131,3 +178,13 @@ def checkField(data, field):
 		value = "%s" % field
 		if len(value) == 0:
 			raise ParamContentException(field)
+
+def checkNotificationTime(notificationTime) :
+	try : 
+		notificationTime = int(notificationTime)
+	except ValueError :
+		return False
+	
+	now = nowTimestamp()
+	return notificationTime >= now - 60 and notificationTime <= now + 3600 * 24 * 30
+	
