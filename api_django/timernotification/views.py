@@ -84,9 +84,8 @@ def email(request):
 	if ip == None :
 		return parseIpErrorResponse()
 
-	requireFields = (	'email_smpt',
-						'email_user',
-						'email_password',
+	requireFields = (	
+						'email_from',
 						'email_subject',
 						'email_body',
 						'email_type',
@@ -103,9 +102,7 @@ def email(request):
 		return invalidNotificationTime() 
 	
 	emailRequest = EmailRequest(	ip = ip,
-									email_smpt = recv_data['email_smpt'],
-									email_user = recv_data['email_user'],
-									email_password = recv_data['email_password'],
+									email_from = recv_data['email_from'],
 									email_subject = recv_data['email_subject'],
 									email_body = recv_data['email_body'],
 									email_type = recv_data['email_type'],

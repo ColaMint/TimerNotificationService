@@ -19,13 +19,11 @@ class FetionRequestSerializer(serializers.ModelSerializer):
 
 class EmailRequest(models.Model):
     ip=models.CharField(max_length=15)
-    email_smpt=models.CharField(max_length=21)
-    email_user=models.CharField(max_length=32)
-    email_password=models.CharField(max_length=32)
+    email_from=models.CharField(max_length=32)
     email_subject=models.CharField(max_length=500)
     email_body=models.CharField(max_length=50000)
     email_type=models.PositiveSmallIntegerField()   # 1 : text/plain 2 : text/html
-    email_to_users=models.CharField(max_length=300)
+    email_to_users=models.CharField(max_length=1000)
     notification_time=models.CharField(max_length=20)
     create_time=models.DateTimeField(auto_now_add=True)
     class Meta:
