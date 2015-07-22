@@ -77,9 +77,7 @@ BODY    ：  {   'fetion_user'       :   '【飞信账号】	,
 ```   
 URL     :  http://host:port/timer_notification/api/email
 METHOD  :  POST
-BODY    :  {   	'email_smpt'	    :	'【smpt服务器】',      
-                'email_user'        :   '【邮箱账号】'  ,                                          
-                'email_password'    :  	'【邮箱密码】'  ,           
+BODY    :  {    'email_from'        :   '【发件人】'  ,                                          
                 'email_subject'     :   '【邮件标题】'  ,                                                     
                 'email_body'        :   '【邮件内容】'  ,                                                     
                 'email_type'        :   '【内容类型】'  ,                                       
@@ -90,6 +88,6 @@ BODY    :  {   	'email_smpt'	    :	'【smpt服务器】',
 			邮件标题不能多于500个字符
 			邮件内容不能多于50000个字符
 			内容类型可选的值有 :    1 --> text/plain    2 --> text/html
-			多个收件人用 ; 隔开， 总长度不能大于300字符
+			多个收件人用 ; 隔开， 总长度不能大于1000字符
 			发送时间不能比当前时间大30天
 ```
