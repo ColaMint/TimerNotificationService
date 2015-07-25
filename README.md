@@ -40,7 +40,7 @@ REDIS = {
 	   	'PORT': 6379,
 	    	'DB'  : 0,
         }	
-        }
+}
 ```
 还可以通过以下两个参数修改用户调用的频率
 ```
@@ -50,7 +50,7 @@ MAX_EMAIL_COUNT_PER_HOUR = 10
 进入/api_django，执行以下命令
 ```
 #安装项目依赖的python包
-pip install requirement.txt
+pip install -r requirement.txt
     
 #自动建立数据库表
 python manage.py makemigrations
