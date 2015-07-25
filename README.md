@@ -66,8 +66,8 @@ METHOD  ：  POST
 BODY    ：  {   'fetion_user'       :   '【飞信账号】	, 
                 'fetion_password'   :   '【飞信密码】	,  
                 'fetion_message'    :  	'【飞信内容】	,     
-                'notification_time' :   '【发送时间戳】	,
-}
+                'notification_time' :   '【发送时间戳】
+	}
 备注    :   	
 			飞信内容不能多于500个字符
 			发送时间不能比当前时间大30天
@@ -82,8 +82,8 @@ BODY    :  {    'email_from'        :   '【发件人】'  ,
                 'email_body'        :   '【邮件内容】'  ,                                                     
                 'email_type'        :   '【内容类型】'  ,                                       
                 'email_to_users',   :   '【收件人】'    ,                                                 
-                'notification_time' :   '【发送时间戳】',
-}
+                'notification_time' :   '【发送时间戳】'
+	}
 备注	:   	
 			邮件标题不能多于500个字符
 			邮件内容不能多于50000个字符
