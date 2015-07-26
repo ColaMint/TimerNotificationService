@@ -1,0 +1,11 @@
+<seelog type="asynctimer" asyncinterval="5000">
+    <outputs formatid="kitoll">
+        <console/>
+        <filter levels="info,warn,error,critical">
+            <file path="seelog.log"/> 
+        </filter>
+    </outputs>
+     <formats>
+        <format id="kitoll" format="[%UTCDate %UTCTime UTC] [%LEVEL] %RelFile:%Line %Msg%n"/>
+    </formats>
+</seelog>

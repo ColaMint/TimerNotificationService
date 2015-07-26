@@ -1,0 +1,11 @@
+email-config:
+    smtp-host       : "mail.example.com"
+    smtp-port       : 25
+    smtp-user       : "test"
+    smtp-password   : "test"
+    smtp-tls        : false
+database-config:
+    db-host         :   "localhost"
+    db-port         :   3306
+    db-user         :   "root"
+    db-password     :   "root"
