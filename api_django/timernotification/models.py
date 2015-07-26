@@ -10,6 +10,7 @@ class FetionRequest(models.Model):
     fetion_message=models.CharField(max_length=500)
     notification_time=models.CharField(max_length=20)
     create_time=models.DateTimeField(auto_now_add=True)
+    is_done=models.BooleanField(default=False)
     class Meta:
         db_table="fetion_request"
 
@@ -26,6 +27,7 @@ class EmailRequest(models.Model):
     email_to_users=models.CharField(max_length=1000)
     notification_time=models.CharField(max_length=20)
     create_time=models.DateTimeField(auto_now_add=True)
+    is_done=models.BooleanField(default=False)
     class Meta:
         db_table="email_request"
 
