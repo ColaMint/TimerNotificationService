@@ -3,6 +3,7 @@ from django.conf import settings
 
 import redis
 import time
+import json
 
 from timernotification.models import *
 
@@ -59,7 +60,7 @@ def sendFetionTask(fetionRequest) :
     ensureRedisKeyType(r, key, 'zset')
 
     fetionRequestSerializer = FetionRequestSerializer(fetionRequest)
-    r.zadd(key, fetionRequestSerializer.data, int(fetionRequest.notification_time))
+    r.zadd(key, json.dumps(fetionRequestSerializer.data), int(fetionRequest.notification_time))
 
 def sendEmailTask(emailRequest) :
     key = 'email-task-set'
@@ -67,4 +68,4 @@ def sendEmailTask(emailRequest) :
     ensureRedisKeyType(r, key, 'zset')
 
     emailRequestSerializer = EmailRequestSerializer(emailRequest)
-    r.zadd(key, emailRequestSerializer.data, int(emailRequest.notification_time))
+    r.zadd(key, json.dumps(emailRequestSerializer.data), int(emailRequest.notification_time))
