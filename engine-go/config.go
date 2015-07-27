@@ -38,8 +38,8 @@ type RedisConfig struct {
 
 var Config EngineConfig
 
-func LoadConfig() {
-	buffer, err := ioutil.ReadFile("config.yml")
+func LoadConfig(configPath string) {
+	buffer, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

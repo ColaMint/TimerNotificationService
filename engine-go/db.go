@@ -15,7 +15,7 @@ var dsn string
 func BuildDSN() string {
 	if dsn == "" {
 		databaseConfig := &Config.DatabaseConfig
-		dsn = fmt.Sprintf("%v:%v@%v:%v/%v?charset=utf8", databaseConfig.DBUser, databaseConfig.DBPassword, databaseConfig.DBHost, databaseConfig.DBPort, DBName)
+		dsn = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8", databaseConfig.DBUser, databaseConfig.DBPassword, databaseConfig.DBHost, databaseConfig.DBPort, DBName)
 	}
 	return dsn
 }

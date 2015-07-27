@@ -9,6 +9,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/gomail.v1"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,7 +29,7 @@ type EmailTask struct {
 	NotificationTime string `json:"notification_time"`
 }
 
-func SendEmail(emailTask EmailTask) bool {
+func SendEmail(emailTask *EmailTask) bool {
 	var mailer *gomail.Mailer
 	var msg *gomail.Message
 	emailConfig := &Config.EmailConfig
@@ -58,20 +59,65 @@ func SendEmail(emailTask EmailTask) bool {
 	}
 
 	if err := mailer.Send(msg); err != nil {
-		logMsg := fmt.Sprintf("[Send Email Failed] [EmailTask : %v] [Error : %v]", emailTask, err)
-		seelog.Error(logMsg)
+		seelog.Errorf("[Send Email Failed] [EmailTask : %v] [Error : %v]", *emailTask, err)
 		return false
 	}
 
+	seelog.Debugf("[Send Email Succeed] [EmailTask : %v]", *emailTask)
 	return true
 }
 
-func SetEmailTaskDone(emailTask EmailTask) bool {
+/* deprecated */
+func GetAllNotDoneEmailTaskInDB() (emailTasks []*EmailTask) {
+	emailTasks = make([]*EmailTask, 0)
 	var db *sql.DB
 	var stmt *sql.Stmt
 	var err error
 	LogError := func() {
-		seelog.Errorf("[Set EmailTaskDone Done Failed] [EmailTask : %v] [ERROR : %v]", emailTask, err)
+		seelog.Errorf("[GetAllNotDoneEmailTaskInDB Failed] [ERROR : %v]", err)
+	}
+
+	if db, err = GetDBConnection(); err != nil {
+		LogError()
+		return
+	}
+	defer db.Close()
+
+	if stmt, err = db.Prepare("SELECT `id`, `email_from`, `email_subject`, `email_body`, `email_type`, `email_to_users`, `notification_time` FROM `email_request` WHERE `is_done` = 0"); err != nil {
+		LogError()
+		return
+	}
+	defer stmt.Close()
+
+	var rows *sql.Rows
+	if rows, err = stmt.Query(); err != nil {
+		LogError()
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var emailTask EmailTask
+		rows.Scan(&emailTask.Id,
+			&emailTask.From,
+			&emailTask.Subject,
+			&emailTask.Body,
+			&emailTask.Type,
+			&emailTask.ToUsers,
+			&emailTask.NotificationTime)
+		emailTasks = append(emailTasks, &emailTask)
+		seelog.Debugf("[Load Email Task From DB] [EmailTask : %v]", emailTask)
+	}
+
+	return
+}
+
+func SetEmailTaskDone(emailTask *EmailTask) bool {
+	var db *sql.DB
+	var stmt *sql.Stmt
+	var err error
+	LogError := func() {
+		seelog.Errorf("[SetEmailTaskDone Failed] [EmailTask : %v] [ERROR : %v]", *emailTask, err)
 	}
 
 	if db, err = GetDBConnection(); err != nil {
@@ -103,27 +149,64 @@ func BuildEmailTaskFromJson(jsonStr string) (*EmailTask, error) {
 }
 
 func FetchEmailTasksFromRedis() []*EmailTask {
-	t := time.Now().Unix()
+	now := time.Now().Unix()
 	emailTasks := make([]*EmailTask, 0)
 	key := "email-task-set"
 	conn := RedisPool.Get()
 	if conn != nil {
 		defer conn.Close()
 		conn.Send("MULTI")
-		conn.Send("ZRANGEBYSCORE", key, 0, t)
-		conn.Send("ZREMRANGEBYSCORE", key, 0, t)
+		conn.Send("ZRANGEBYSCORE", key, 0, now)
+		conn.Send("ZREMRANGEBYSCORE", key, 0, now)
 		queued, err := conn.Do("EXEC")
 		if err == nil && queued != nil {
-			jsonStrs, e := redis.Strings(queued.([]interface{})[0], err)
-			if e == nil {
+			jsonStrs, err := redis.Strings(queued.([]interface{})[0], nil)
+			if err == nil {
 				for _, jsonStr := range jsonStrs {
-					seelog.Infof("[Email Task Json] %v", jsonStr)
-					if emailTask, e := BuildEmailTaskFromJson(jsonStr); e == nil && emailTask != nil {
-						emailTasks = append(emailTasks, emailTask)
+					seelog.Debugf("[Receive EmailTask From Redis] [Json : %v]", jsonStr)
+					if emailTask, err := BuildEmailTaskFromJson(jsonStr); err == nil && emailTask != nil {
+						if nt, err := strconv.Atoi(emailTask.NotificationTime); err == nil {
+							/* 最多延迟一个小时发送 */
+							delta := now - int64(nt)
+							if delta < int64(time.Hour.Seconds()*1) {
+								emailTasks = append(emailTasks, emailTask)
+							} else {
+								seelog.Debugf("[EmailTask Too Late] [Delta Seconds : %v][EmailTask : %v]", delta, *emailTask)
+							}
+						}
 					}
 				}
 			}
 		}
 	}
 	return emailTasks
+}
+
+type EmailTaskHandler struct {
+}
+
+func (*EmailTaskHandler) TaskName() string {
+	return "Email"
+}
+
+func (*EmailTaskHandler) HandleTask(task interface{}) bool {
+	if emailTask, ok := task.(*EmailTask); ok {
+		if SendEmail(emailTask) {
+			SetEmailTaskDone(emailTask)
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+
+}
+
+func (*EmailTaskHandler) TaskToString(task interface{}) string {
+	if emailTask, ok := task.(*EmailTask); ok {
+		return fmt.Sprintf("%v", *emailTask)
+	} else {
+		return "Unknown Task"
+	}
 }
