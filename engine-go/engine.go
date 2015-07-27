@@ -10,6 +10,7 @@ import (
 
 type TaskHandler interface {
 	TaskName() string
+	FetchTasks() []interface{}
 	HandleTask(task interface{}) bool
 	TaskToString(task interface{}) string
 }
@@ -86,8 +87,8 @@ func (this *DispatcherThread) Run(wg sync.WaitGroup) {
 	}
 
 	for {
-		emailTasks := FetchEmailTasksFromRedis()
-		for _, task := range emailTasks {
+		tasks := this.TaskHanlder.FetchTasks()
+		for _, task := range tasks {
 			seelog.Debugf("[Prepare To Start %v Task] [Task : %v]", this.TaskHanlder.TaskName(), this.TaskHanlder.TaskToString(task))
 			this.mainChanGroup.NextChan() <- task
 		}

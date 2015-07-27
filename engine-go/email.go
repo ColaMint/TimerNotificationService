@@ -148,9 +148,9 @@ func BuildEmailTaskFromJson(jsonStr string) (*EmailTask, error) {
 	return &emailTask, err
 }
 
-func FetchEmailTasksFromRedis() []*EmailTask {
+func FetchEmailTasksFromRedis() []interface{} {
 	now := time.Now().Unix()
-	emailTasks := make([]*EmailTask, 0)
+	emailTasks := make([]interface{}, 0)
 	key := "email-task-set"
 	conn := RedisPool.Get()
 	if conn != nil {
@@ -187,6 +187,10 @@ type EmailTaskHandler struct {
 
 func (*EmailTaskHandler) TaskName() string {
 	return "Email"
+}
+
+func (*EmailTaskHandler) FetchTasks() []interface{} {
+	return FetchEmailTasksFromRedis()
 }
 
 func (*EmailTaskHandler) HandleTask(task interface{}) bool {
